@@ -3,11 +3,12 @@ import './App.css';
 import { Row, Col, Typography, Input, Button, Table } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import _ from "lodash";
-
+import { ColumnsType } from 'antd/es/table';
 
 const { Title } = Typography
 
 interface DataType {
+  key: number,
   task: string;
   status: string;
   remove: ReactNode;
@@ -18,7 +19,7 @@ const App: FC = () => {
 
   const [inputValue, setInputValue] = useState<string>('')
 
-  const columns = [
+  const columns: ColumnsType<DataType> = [
     {
       title: 'Task',
       dataIndex: 'task',
@@ -27,13 +28,21 @@ const App: FC = () => {
     {
       title: 'Status',
       dataIndex: 'status',
-      key: 'status'
+      key: 'status',
+      render: (text, record, index) => <Button onClick={() => {
+        data[index].status = text === 'To do'? 'Done' : 'To do'
+        setData(_.cloneDeep(data))
+      }}>{text}</Button>
     },
     {
       title: '',
       dataIndex: 'remove',
       key: 'remove',
-      render: () => <DeleteOutlined />
+      render: (text, record, index) => <DeleteOutlined onClick={() => {
+        // console.log('text, record, index',text, record, index)
+        data.splice(index,1)
+        setData(_.cloneDeep(data))
+      }}/>
     }
   ]
 
@@ -43,6 +52,7 @@ const App: FC = () => {
 
   const addRecord = () => {
     data.push({
+      key: data.length + 1,
       task: inputValue,
       status: 'To do',
       remove: ""
